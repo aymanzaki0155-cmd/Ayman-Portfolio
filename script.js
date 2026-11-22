@@ -1,6 +1,6 @@
 // Select all sections and cards
 const revealElements = document.querySelectorAll(
-    '.about, .skills, .projects, .services, .certificates, .contact, .about-card, .skill-card, .project-card, .service-card, .certificate-card, .contact-card'
+    '.about, .skills, .projects, .services, .contact, .education, .about-card, .skill-card, .project-card, .service-card, .contact-card'
 );
 
 // Add reveal class
@@ -25,7 +25,6 @@ const observer = new IntersectionObserver((entries) => {
 
 // Observe elements
 revealElements.forEach((element) => {
-    '.education'
     observer.observe(element);
 });
 
