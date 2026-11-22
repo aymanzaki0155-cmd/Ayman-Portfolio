@@ -345,14 +345,7 @@ body {
         font-size: 32px;
     }
 
-    .certificates {
-        padding: 70px 5%;
-    }
-
-    .certificates-container {
-        grid-template-columns: 1fr;
-    }
-
+    
     .contact {
         padding: 70px 5%;
     }
@@ -788,80 +781,6 @@ body {
     font-weight: bold;
 }
 
-/* Certificates Section */
-
-.certificates {
-    padding: 100px 8%;
-    background: #0B1020;
-}
-
-.certificates-header {
-    text-align: center;
-    margin-bottom: 50px;
-}
-
-.certificates-header h2 {
-    font-size: 36px;
-    margin: 15px 0;
-}
-
-.certificates-header p {
-    color: #94A3B8;
-}
-
-.certificates-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-    max-width: 1200px;
-    margin: auto;
-}
-
-.certificate-card {
-    background: #111827;
-    border: 1px solid #1E293B;
-    border-radius: 12px;
-    padding: 30px;
-    text-align: center;
-    transition: 0.3s;
-}
-
-.certificate-card:hover {
-    transform: translateY(-7px);
-    border-color: #2563EB;
-    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
-}
-
-.certificate-icon {
-    font-size: 35px;
-    margin-bottom: 20px;
-}
-
-.certificate-card h3 {
-    font-size: 20px;
-    margin-bottom: 12px;
-}
-
-.certificate-card p {
-    color: #94A3B8;
-    margin-bottom: 10px;
-}
-
-.certificate-card span {
-    display: block;
-    color: #38BDF8;
-    margin-bottom: 20px;
-}
-
-.certificate-card a {
-    color: #38BDF8;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-.certificate-card a:hover {
-    color: white;
-}
 
 
 /* Contact Section */
