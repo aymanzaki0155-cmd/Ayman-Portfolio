@@ -311,7 +311,7 @@ if ('IntersectionObserver' in window && spyLinks.length) {
         while ((n = walker.nextNode())) {
             if (!n.nodeValue.trim()) continue;
             const p = n.parentElement;
-            if (!p || SKIP.has(p.tagName.toUpperCase()) || p.closest('svg') || p.closest('#chat') || p.id === 'lang') continue;
+            if (!p || SKIP.has(p.tagName.toUpperCase()) || p.closest('svg') || p.closest('#chat') || p.closest('.role') || p.id === 'lang') continue;
             out.push(n);
         }
         return out;
@@ -496,4 +496,41 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     window.addEventListener('resize', () => { if (panel.classList.contains('open')) { sizeBg(); if (reduce) frame(0); } });
     new MutationObserver(renderUI).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
     renderUI();
+})();
+
+// Typing effect for the hero role: alternates between the two titles, forever
+(function () {
+    const el = document.getElementById('typed');
+    if (!el) return;
+    const ROLES = {
+        en: ['AI & Machine Learning Engineer', 'Data Analyst'],
+        ar: ['مهندس ذكاء اصطناعي وتعلّم الآلة', 'محلل بيانات']
+    };
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let timer = 0, run = 0;
+
+    function start() {
+        clearTimeout(timer);
+        const id = ++run;
+        const list = ROLES[document.documentElement.lang === 'ar' ? 'ar' : 'en'];
+        if (reduce) { el.textContent = list.join(' | '); return; }
+        let i = 0, n = Array.from(list[0]).length, deleting = true;
+        el.textContent = list[0];
+        (function tick() {
+            if (id !== run) return;
+            const chars = Array.from(list[i]);
+            if (!deleting) {
+                n++; el.textContent = chars.slice(0, n).join('');
+                if (n >= chars.length) { deleting = true; timer = setTimeout(tick, 1700); return; }
+                timer = setTimeout(tick, 70);
+            } else {
+                n--; el.textContent = chars.slice(0, Math.max(n, 0)).join('');
+                if (n <= 0) { deleting = false; i = (i + 1) % list.length; timer = setTimeout(tick, 350); return; }
+                timer = setTimeout(tick, 35);
+            }
+        })();
+    }
+    // first pass: show the full title for a moment, then start the loop
+    timer = 0; start();
+    new MutationObserver(start).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
 })();

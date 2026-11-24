@@ -179,3 +179,9 @@ html[dir=rtl] .msg.user{border-bottom-right-radius:16px;border-bottom-left-radiu
 .price a:active{color:#f43f5e}
 .svc-cta{text-align:center;margin-top:44px}
 .svc-cta p{color:var(--muted);margin-bottom:16px}
+/* ===== Typing effect ===== */
+.role{min-height:1.7em}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--accent2);margin-inline-start:4px;vertical-align:-.15em;animation:caret 1s steps(1) infinite}
+@keyframes caret{50%{opacity:0}}
+@media(max-width:480px){.role{font-size:1.05rem}}
+@media(prefers-reduced-motion:reduce){.caret{animation:none}}
