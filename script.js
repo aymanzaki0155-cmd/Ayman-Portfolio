@@ -238,7 +238,7 @@ if ('IntersectionObserver' in window && spyLinks.length) {
         while ((n = walker.nextNode())) {
             if (!n.nodeValue.trim()) continue;
             const p = n.parentElement;
-            if (!p || SKIP.has(p.tagName.toUpperCase()) || p.closest('svg') || p.id === 'lang') continue;
+            if (!p || SKIP.has(p.tagName.toUpperCase()) || p.closest('svg') || p.closest('#chat') || p.id === 'lang') continue;
             out.push(n);
         }
         return out;
@@ -263,4 +263,158 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     try { saved = localStorage.getItem('lang') === 'ar' ? 'ar' : 'en'; } catch (e) {}
     if (saved === 'ar') apply('ar');
     btn.addEventListener('click', () => apply(document.documentElement.lang === 'ar' ? 'en' : 'ar'));
+})();
+
+// Floating chat assistant (rule-based, no server needed) + animated AI / data background
+(function () {
+    const fab = document.getElementById('chat-fab'), panel = document.getElementById('chat');
+    if (!fab || !panel) return;
+    const body = document.getElementById('chat-body'), quick = document.getElementById('chat-quick');
+    const form = document.getElementById('chat-form'), input = document.getElementById('chat-input');
+    const closeBtn = document.getElementById('chat-close'), cv = document.getElementById('chat-bg');
+    const isAr = () => document.documentElement.lang === 'ar';
+
+    const KB = [
+        { id: 'cv', k: ['cv', 'resume', 'download', 'سيرة', 'سيره', 'تحميل', 'حمل'],
+          en: 'Here you go: <a href="cv/Ayman_Zaki_CV.pdf" download>Download CV</a>',
+          ar: 'تفضل: <a href="cv/Ayman_Zaki_CV.pdf" download>تحميل السيرة الذاتية</a>' },
+        { id: 'job', k: ['intern', 'job', 'hire', 'hiring', 'available', 'opportun', 'تدريب', 'وظيف', 'فرصة', 'فرص', 'متاح'],
+          en: 'Ayman is looking for internship opportunities in AI, machine learning and data analysis. Send him a message through the <a href="#contact">contact section</a>.',
+          ar: 'أيمن يبحث عن فرص تدريب في الذكاء الاصطناعي وتعلّم الآلة وتحليل البيانات. راسله من <a href="#contact">قسم التواصل</a>.' },
+        { id: 'contact', k: ['contact', 'email', 'mail', 'phone', 'whatsapp', 'linkedin', 'github', 'reach', 'talk', 'تواصل', 'ايميل', 'إيميل', 'بريد', 'واتس', 'رقم', 'لينكد', 'جيت'],
+          en: '📧 <a href="mailto:aymanzaki0155@gmail.com">aymanzaki0155@gmail.com</a><br>💼 <a href="https://www.linkedin.com/in/aymanelmahmoudy/" target="_blank" rel="noopener">LinkedIn</a><br>💻 <a href="https://github.com/aymanzaki0155-cmd" target="_blank" rel="noopener">GitHub</a><br>📱 <a href="https://wa.me/201551637474" target="_blank" rel="noopener">WhatsApp</a>',
+          ar: '📧 <a href="mailto:aymanzaki0155@gmail.com">aymanzaki0155@gmail.com</a><br>💼 <a href="https://www.linkedin.com/in/aymanelmahmoudy/" target="_blank" rel="noopener">LinkedIn</a><br>💻 <a href="https://github.com/aymanzaki0155-cmd" target="_blank" rel="noopener">GitHub</a><br>📱 <a href="https://wa.me/201551637474" target="_blank" rel="noopener">واتساب</a>' },
+        { id: 'projects', k: ['project', 'work', 'portfolio', 'air', 'dashboard', 'churn', 'مشروع', 'مشاريع', 'اعمال', 'أعمال', 'جودة', 'داشبورد'],
+          en: '<b>Air Quality Prediction</b>: PM2.5 forecasting on 420K+ records (XGBoost R² 0.9547).<br><b>Excel Interactive Dashboard</b>: KPIs, Power Query and slicers.<br><b>Customer Churn Classification</b>: preprocessing, encoding, scaling and evaluation.<br><a href="#projects">See the projects</a>',
+          ar: '<b>التنبؤ بجودة الهواء</b>: توقع PM2.5 على أكثر من 420 ألف سجل (XGBoost R² 0.9547).<br><b>لوحة Excel تفاعلية</b>: مؤشرات أداء وPower Query وSlicers.<br><b>تصنيف تسرّب العملاء</b>: معالجة وترميز وتحجيم وتقييم.<br><a href="#projects">شاهد المشاريع</a>' },
+        { id: 'skills', k: ['skill', 'tech', 'tools', 'python', 'sql', 'stack', 'مهارات', 'مهارة', 'تقنيات', 'ادوات', 'أدوات', 'بايثون'],
+          en: '<b>Programming:</b> Python, C++, OOP<br><b>Data:</b> Pandas, NumPy, Excel, Power Query, SQL<br><b>Visualization:</b> Matplotlib, Seaborn, Power BI<br><b>ML:</b> Regression, Classification, Random Forest, XGBoost, SVM, PCA<br><b>Tools:</b> Scikit-learn, Jupyter, Colab, Git',
+          ar: '<b>البرمجة:</b> Python, C++, OOP<br><b>البيانات:</b> Pandas, NumPy, Excel, Power Query, SQL<br><b>التصوير:</b> Matplotlib, Seaborn, Power BI<br><b>تعلّم الآلة:</b> Regression, Classification, Random Forest, XGBoost, SVM, PCA<br><b>الأدوات:</b> Scikit-learn, Jupyter, Colab, Git' },
+        { id: 'edu', k: ['education', 'study', 'university', 'college', 'degree', 'zagazig', 'faculty', 'تعليم', 'دراس', 'جامعة', 'كلية', 'الزقازيق'],
+          en: "Faculty of Computers and Informatics, Zagazig University. Bachelor's degree (2025 to 2029, expected), currently in the second year.",
+          ar: 'كلية الحاسبات والمعلومات، جامعة الزقازيق. بكالوريوس (2025 إلى 2029 متوقع)، وحالياً في الفرقة الثانية.' },
+        { id: 'about', k: ['who', 'about', 'ayman', 'introduce', 'نبذة', 'مين', 'من هو', 'من انت', 'من أنت', 'ايمن', 'أيمن'],
+          en: 'Ayman Zaki is a second-year Computer Science student at Zagazig University, passionate about AI, machine learning and data analysis. He builds ML models and interactive dashboards.',
+          ar: 'أيمن زكي طالب بالفرقة الثانية في كلية الحاسبات والمعلومات بجامعة الزقازيق، شغوف بالذكاء الاصطناعي وتعلّم الآلة وتحليل البيانات، ويبني نماذج تعلّم آلة ولوحات تفاعلية.' },
+        { id: 'hi', k: ['hi', 'hello', 'hey', 'مرحبا', 'اهلا', 'أهلا', 'السلام', 'هاي'],
+          en: 'Hello! 👋 What would you like to know about Ayman?', ar: 'أهلاً بك! 👋 ماذا تحب أن تعرف عن أيمن؟' }
+    ];
+    const FALLBACK = {
+        en: 'I am not sure about that, but you can ask about skills, projects, education or contact, or message Ayman on <a href="https://wa.me/201551637474" target="_blank" rel="noopener">WhatsApp</a>.',
+        ar: 'لست متأكداً من ذلك، لكن يمكنك السؤال عن المهارات أو المشاريع أو التعليم أو التواصل، أو مراسلة أيمن على <a href="https://wa.me/201551637474" target="_blank" rel="noopener">واتساب</a>.' };
+    const GREET = {
+        en: "Hi! I'm Ayman's assistant 👋 Ask me about his skills, projects, education, or how to contact him.",
+        ar: 'أهلاً! أنا مساعد أيمن 👋 اسألني عن مهاراته أو مشاريعه أو دراسته أو طريقة التواصل معه.' };
+    const QUICK = [['skills', 'Skills', 'المهارات'], ['projects', 'Projects', 'المشاريع'], ['edu', 'Education', 'التعليم'], ['contact', 'Contact', 'التواصل'], ['cv', 'Download CV', 'تحميل السيرة']];
+
+    function add(content, who, html) {
+        const d = document.createElement('div');
+        d.className = 'msg ' + who;
+        if (html) d.innerHTML = content; else d.textContent = content;
+        body.appendChild(d); body.scrollTop = body.scrollHeight;
+        return d;
+    }
+    function botReply(html) {
+        const t = document.createElement('div');
+        t.className = 'msg bot typing'; t.innerHTML = '<i></i><i></i><i></i>';
+        body.appendChild(t); body.scrollTop = body.scrollHeight;
+        setTimeout(() => { t.remove(); add(html, 'bot', true); }, 550);
+    }
+    function answer(q) {
+        const s = q.toLowerCase();
+        const hit = KB.find((e) => e.k.some((w) => s.includes(w)));
+        botReply(hit ? (isAr() ? hit.ar : hit.en) : (isAr() ? FALLBACK.ar : FALLBACK.en));
+    }
+    function renderUI() {
+        document.getElementById('chat-title').textContent = isAr() ? 'مساعد أيمن' : "Ayman's Assistant";
+        document.getElementById('chat-status').textContent = isAr() ? 'متصل' : 'Online';
+        input.placeholder = isAr() ? 'اسألني أي شيء...' : 'Ask me anything...';
+        fab.setAttribute('aria-label', isAr() ? 'فتح الدردشة' : 'Open chat');
+        quick.innerHTML = '';
+        QUICK.forEach(([id, en, ar]) => {
+            const b = document.createElement('button');
+            b.type = 'button'; b.textContent = isAr() ? ar : en;
+            b.addEventListener('click', () => {
+                add(b.textContent, 'user');
+                const e = KB.find((x) => x.id === id);
+                botReply(isAr() ? e.ar : e.en);
+            });
+            quick.appendChild(b);
+        });
+    }
+    form.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const v = input.value.trim();
+        if (!v) return;
+        add(v, 'user'); input.value = ''; answer(v);
+    });
+    body.addEventListener('click', (e) => {
+        const a = e.target.closest('a[href^="#"]');
+        if (a) toggle(false);
+    });
+
+    // ---- animated background (binary rain, bar chart, line chart, neural net) ----
+    const ctx = cv.getContext('2d');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let W = 0, H = 0, raf = 0, cols = [], c1 = '#6c8cff', c2 = '#22d3ee';
+    function sizeBg() {
+        const r = panel.getBoundingClientRect(), dpr = Math.min(window.devicePixelRatio || 1, 2);
+        W = r.width; H = r.height;
+        cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cols = Array.from({ length: Math.floor(W / 22) }, (_, i) => ({ x: i * 22 + 6, y: Math.random() * H, v: 0.4 + Math.random() * 0.9 }));
+    }
+    function frame(t) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.font = '13px monospace'; ctx.fillStyle = c2;
+        cols.forEach((c) => {
+            for (let k = 0; k < 6; k++) {
+                ctx.globalAlpha = 0.22 - k * 0.035;
+                ctx.fillText(((c.x * 7 + Math.floor(c.y / 16) + k) % 2) ? '1' : '0', c.x, c.y - k * 16);
+            }
+            if (!reduce) { c.y += c.v; if (c.y - 100 > H) { c.y = -10; c.v = 0.4 + Math.random() * 0.9; } }
+        });
+        const n = 9, bw = W / (n * 1.6);                       // animated bar chart
+        ctx.fillStyle = c1;
+        for (let i = 0; i < n; i++) {
+            const bh = 20 + 60 * Math.abs(Math.sin(t * 0.0011 + i * 0.8));
+            ctx.globalAlpha = 0.22;
+            ctx.fillRect(14 + i * bw * 1.6, H - 12 - bh, bw, bh);
+        }
+        ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.globalAlpha = 0.35; ctx.beginPath();   // line chart
+        const ly = (x) => H * 0.7 + Math.sin(x * 0.03 + t * 0.002) * 10 + Math.sin(x * 0.011 - t * 0.0013) * 14;
+        for (let x = 0; x <= W; x += 6) x ? ctx.lineTo(x, ly(x)) : ctx.moveTo(x, ly(x));
+        ctx.stroke(); ctx.fillStyle = c2; ctx.globalAlpha = 0.55;
+        for (let x = 20; x < W; x += 52) { ctx.beginPath(); ctx.arc(x, ly(x), 2.6, 0, 6.3); ctx.fill(); }
+        const L = [[W * 0.58, [0.38, 0.5, 0.62]], [W * 0.74, [0.33, 0.45, 0.57, 0.69]], [W * 0.9, [0.42, 0.58]]];  // neural net
+        ctx.strokeStyle = c1; ctx.lineWidth = 1;
+        for (let a = 0; a < L.length - 1; a++) L[a][1].forEach((ya) => L[a + 1][1].forEach((yb) => {
+            ctx.globalAlpha = 0.06 + 0.2 * (Math.sin(t * 0.003 - a * 1.3 + ya * 6) + 1) / 2;
+            ctx.beginPath(); ctx.moveTo(L[a][0], ya * H); ctx.lineTo(L[a + 1][0], yb * H); ctx.stroke();
+        }));
+        ctx.fillStyle = c1; ctx.globalAlpha = 0.5;
+        L.forEach(([x, ys]) => ys.forEach((y) => { ctx.beginPath(); ctx.arc(x, y * H, 4, 0, 6.3); ctx.fill(); }));
+        ctx.globalAlpha = 1;
+        if (!reduce && panel.classList.contains('open')) raf = requestAnimationFrame(frame);
+    }
+    function startBg() {
+        const s = getComputedStyle(document.documentElement);
+        c1 = s.getPropertyValue('--accent').trim() || c1; c2 = s.getPropertyValue('--accent2').trim() || c2;
+        sizeBg(); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame);
+    }
+
+    let greeted = false;
+    function toggle(open) {
+        panel.classList.toggle('open', open); fab.classList.toggle('open', open);
+        fab.setAttribute('aria-expanded', String(open)); panel.setAttribute('aria-hidden', String(!open));
+        if (open) {
+            if (!greeted) { greeted = true; add(isAr() ? GREET.ar : GREET.en, 'bot'); }
+            startBg(); setTimeout(() => input.focus(), 250);
+        } else { cancelAnimationFrame(raf); }
+    }
+    fab.addEventListener('click', () => toggle(!panel.classList.contains('open')));
+    closeBtn.addEventListener('click', () => { toggle(false); fab.focus(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && panel.classList.contains('open')) toggle(false); });
+    window.addEventListener('resize', () => { if (panel.classList.contains('open')) { sizeBg(); if (reduce) frame(0); } });
+    new MutationObserver(renderUI).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+    renderUI();
 })();
