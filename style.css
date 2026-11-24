@@ -105,3 +105,11 @@ section{padding:72px 0}.hero{text-align:center}.lead{margin-inline:auto}.cta{jus
 #bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
 section,footer{position:relative;z-index:1}
 .alt{background:color-mix(in srgb,var(--bg2) 55%,transparent)}
+/* ===== University logo ===== */
+.edu h4.uni{display:flex;align-items:center;gap:12px;margin:8px 0}
+.edu h4.uni img{width:44px;height:44px;border-radius:50%;background:#fff;border:2px solid var(--line);object-fit:cover;flex:none}
+/* ===== Uniform background, no edges between sections ===== */
+.alt{background:transparent}
+.hero{background:none}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(900px 500px at 80% 10%,var(--glow1),transparent),radial-gradient(700px 400px at 0 100%,var(--glow2),transparent)}
+footer{border-top:0}
