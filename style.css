@@ -111,3 +111,9 @@ section,footer{position:relative;z-index:1}
 .hero{background:none}
 body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(900px 500px at 80% 10%,var(--glow1),transparent),radial-gradient(700px 400px at 0 100%,var(--glow2),transparent)}
 footer{border-top:0}
+/* ===== Project metrics ===== */
+.metrics{display:flex;gap:8px;flex-wrap:wrap}
+.metrics div{flex:1;min-width:86px;text-align:center;padding:8px 6px;border-radius:10px;background:rgba(108,140,255,.1);border:1px solid var(--line)}
+.metrics b{display:block;font-size:1.05rem;color:var(--accent2)}
+.metrics small{color:var(--muted);font-size:.72rem}
+.picked .metrics b{color:var(--c)}
