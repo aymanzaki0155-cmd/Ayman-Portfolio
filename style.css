@@ -170,3 +170,12 @@ html[dir=rtl] .msg.bot{border-bottom-left-radius:16px;border-bottom-right-radius
 html[dir=rtl] .msg.user{border-bottom-right-radius:16px;border-bottom-left-radius:4px}
 @media(max-width:480px){.chat{right:12px;bottom:calc(88px + env(safe-area-inset-bottom,0px))}.fab{right:14px}}
 @media(prefers-reduced-motion:reduce){.fab:before{animation:none}}
+/* ===== Services: price line + quote CTA ===== */
+.svc{display:flex;flex-direction:column}
+.svc p{flex:1}
+.svc .chips{margin-bottom:4px}
+.price{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);font-size:.82rem;color:var(--muted)}
+.price a{color:var(--accent);font-weight:600;white-space:nowrap}
+.price a:active{color:#f43f5e}
+.svc-cta{text-align:center;margin-top:44px}
+.svc-cta p{color:var(--muted);margin-bottom:16px}

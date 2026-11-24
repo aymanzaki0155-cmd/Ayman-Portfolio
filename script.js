@@ -69,85 +69,149 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     document.querySelectorAll('section[id]').forEach((s) => spy.observe(s));
 }
 
-// Interactive background: floating network that reacts to the mouse
+// Interactive background: AI head (neural network) + data-analysis visuals, reacting to the mouse
 (function () {
     const c = document.getElementById('bg');
     if (!c || !c.getContext) return;
     const ctx = c.getContext('2d');
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-    let w, h, pts = [], c1, c2;
+    let W = 0, H = 0, c1 = '#6c8cff', c2 = '#22d3ee', mxs = 0, mys = 0, tx = 0, ty = 0;
     const mouse = { x: -9999, y: -9999 };
+
+    function rng(seed) {
+        return () => { seed |= 0; seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+            t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    }
+    // Head profile (facing left), normalized coordinates
+    const OUT = [[.50,.04],[.66,.07],[.80,.17],[.88,.32],[.90,.48],[.86,.62],[.80,.70],[.78,.80],[.80,.96],[.50,.96],[.48,.84],[.40,.78],[.30,.76],[.26,.70],[.28,.64],[.25,.58],[.19,.55],[.25,.48],[.27,.38],[.28,.28],[.34,.14],[.42,.07]];
+    const TRACES = [[[.89,.40],[.97,.40],[.97,.30],[1.08,.30]], [[.88,.55],[1.0,.55],[1.0,.66],[1.12,.66]], [[.80,.22],[.86,.12],[1.02,.12]]];
+    const R = rng(7), BR = [], EDGES = [];
+    while (BR.length < 30) {
+        const x = .58 + (R() * 2 - 1) * .27, y = .33 + (R() * 2 - 1) * .21;
+        if (((x - .58) / .27) ** 2 + ((y - .33) / .21) ** 2 <= 1) BR.push([x, y]);
+    }
+    for (let i = 0; i < BR.length; i++) for (let j = i + 1; j < BR.length; j++)
+        if (Math.hypot(BR[i][0] - BR[j][0], BR[i][1] - BR[j][1]) < .115) EDGES.push([i, j]);
+    const R2 = rng(21);
+    const SCAT = Array.from({ length: 26 }, (_, i) => { const x = i / 25; return [x, .75 - x * .5 + (R2() - .5) * .38]; });
+    const TAGS = ['R² 0.95', 'MAE 9.45', 'PM2.5', 'XGBoost', 'n = 420k', 'PCA', 'EDA', 'Python', 'AI', 'ML'].map((t, i) =>
+        ({ t, x: R2(), y: R2(), p: R2() * 6.28, d: 6 + R2() * 14 }));
 
     function colors() {
         const s = getComputedStyle(document.documentElement);
-        c1 = s.getPropertyValue('--accent').trim() || '#6c8cff';
-        c2 = s.getPropertyValue('--accent2').trim() || '#22d3ee';
+        c1 = s.getPropertyValue('--accent').trim() || c1;
+        c2 = s.getPropertyValue('--accent2').trim() || c2;
     }
-
     function resize() {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        w = window.innerWidth; h = window.innerHeight;
-        c.width = w * dpr; c.height = h * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        const n = Math.min(110, Math.floor((w * h) / 15000));
-        pts = Array.from({ length: n }, () => ({
-            x: Math.random() * w, y: Math.random() * h,
-            vx: (Math.random() - 0.5) * 0.35, vy: (Math.random() - 0.5) * 0.35,
-            r: Math.random() * 1.6 + 1
-        }));
+        W = window.innerWidth; H = window.innerHeight;
+        c.width = W * dpr; c.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function draw() {
-        ctx.clearRect(0, 0, w, h);
-        for (const p of pts) {
-            if (!reduce) {
-                p.x += p.vx; p.y += p.vy;
-                if (p.x < 0 || p.x > w) p.vx *= -1;
-                if (p.y < 0 || p.y > h) p.vy *= -1;
-                const dx = p.x - mouse.x, dy = p.y - mouse.y, d = Math.hypot(dx, dy);
-                if (d < 140 && d > 0) {            // mouse pushes dots away
-                    const f = ((140 - d) / 140) * 1.2;
-                    p.x += (dx / d) * f; p.y += (dy / d) * f;
-                }
+    function head(t, a) {
+        const mobile = W < 820;
+        const S = mobile ? Math.min(W * 1.05, H * 0.6) : Math.min(H * 0.92, W * 0.52);
+        const cx = (mobile ? W * 0.5 : W * 0.72) + mxs * 14, cy = (mobile ? H * 0.46 : H * 0.52) + Math.sin(t * 0.0008) * 6 + mys * 10;
+        const P = (x, y, d) => [cx + (x - .55) * S + mxs * (d || 0), cy + (y - .5) * S + mys * (d || 0) * .7];
+        const path = () => { ctx.beginPath(); OUT.forEach(([x, y], i) => { const [px, py] = P(x, y); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }); ctx.closePath(); };
+        path(); ctx.globalAlpha = .05 * a; ctx.fillStyle = c1; ctx.fill();
+        ctx.globalAlpha = .55 * a; ctx.strokeStyle = c1; ctx.lineWidth = 1.6; ctx.stroke();
+        ctx.fillStyle = c1; ctx.globalAlpha = .8 * a;
+        OUT.forEach(([x, y]) => { const [px, py] = P(x, y); ctx.beginPath(); ctx.arc(px, py, 2.4, 0, 6.3); ctx.fill(); });
+        ctx.strokeStyle = c1; ctx.lineWidth = 1;
+        EDGES.forEach(([i, j], k) => {
+            const A = P(BR[i][0], BR[i][1], 16), B = P(BR[j][0], BR[j][1], 16);
+            ctx.globalAlpha = (.1 + .22 * (Math.sin(t * .002 + k * .7) + 1) / 2) * a;
+            ctx.beginPath(); ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]); ctx.stroke();
+            if (k % 4 === 0) {
+                const u = (t * .0006 + k * .137) % 1;
+                ctx.globalAlpha = .9 * a; ctx.fillStyle = c2;
+                ctx.beginPath(); ctx.arc(A[0] + (B[0] - A[0]) * u, A[1] + (B[1] - A[1]) * u, 1.8, 0, 6.3); ctx.fill();
             }
+        });
+        BR.forEach(([x, y], i) => {
+            const [px, py] = P(x, y, 16), near = Math.hypot(px - mouse.x, py - mouse.y) < 110;
+            const pu = (Math.sin(t * .003 + i) + 1) / 2;
+            ctx.globalAlpha = (near ? 1 : .6) * a; ctx.fillStyle = near ? '#fff' : c2;
+            ctx.beginPath(); ctx.arc(px, py, 2 + 1.5 * pu + (near ? 2 : 0), 0, 6.3); ctx.fill();
+        });
+        const [ex, ey] = P(.33, .42, 8), ep = (Math.sin(t * .004) + 1) / 2;            // glowing eye
+        ctx.strokeStyle = c2; ctx.lineWidth = 1.5; ctx.globalAlpha = (.5 + .4 * ep) * a;
+        ctx.beginPath(); ctx.arc(ex, ey, 7 + ep * 2, 0, 6.3); ctx.stroke();
+        ctx.fillStyle = c2; ctx.beginPath(); ctx.arc(ex, ey, 3, 0, 6.3); ctx.fill();
+        ctx.save(); path(); ctx.clip();                                                 // scan line
+        const sy = cy - S * .46 + ((t * .0004) % 1) * S * .92, g = ctx.createLinearGradient(0, sy - 30, 0, sy + 2);
+        g.addColorStop(0, 'transparent'); g.addColorStop(1, c2);
+        ctx.globalAlpha = .22 * a; ctx.fillStyle = g; ctx.fillRect(cx - S, sy - 30, S * 2, 32);
+        ctx.restore();
+        ctx.strokeStyle = c2; ctx.lineWidth = 1.4; ctx.setLineDash([6, 8]); ctx.lineDashOffset = -t * .03;   // data traces
+        TRACES.forEach((tr) => {
+            ctx.globalAlpha = .4 * a; ctx.beginPath();
+            tr.forEach(([x, y], i) => { const [px, py] = P(x, y, 4); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+            ctx.stroke();
+        });
+        ctx.setLineDash([]);
+    }
+
+    function data(t) {
+        const mobile = W < 820, k = mobile ? .75 : 1;
+        // donut
+        let [x, y] = [W * .1 + mxs * 8, H * .24 + mys * 6]; const r = 38 * k;
+        ctx.lineWidth = 9 * k; let ang = t * .0004;
+        [[.45, c1, .4], [.3, c2, .5], [.25, c1, .22]].forEach(([v, col, al]) => {
+            ctx.strokeStyle = col; ctx.globalAlpha = al; ctx.beginPath(); ctx.arc(x, y, r, ang, ang + v * 6.28 - .08); ctx.stroke(); ang += v * 6.28;
+        });
+        // bars
+        const bx = W * .05 + mxs * 12, by = H * .86 + mys * 8;
+        for (let i = 0; i < 8; i++) {
+            const h = (22 + 50 * Math.abs(Math.sin(t * .0009 + i * .9))) * k;
+            ctx.globalAlpha = .3; ctx.fillStyle = c1; ctx.fillRect(bx + i * 22 * k, by - h, 14 * k, h);
+            ctx.globalAlpha = .6; ctx.fillStyle = c2; ctx.fillRect(bx + i * 22 * k, by - h, 14 * k, 2);
         }
-        ctx.lineWidth = 1;
-        ctx.strokeStyle = c1;
-        for (let i = 0; i < pts.length; i++) {
-            for (let j = i + 1; j < pts.length; j++) {
-                const d = Math.hypot(pts[i].x - pts[j].x, pts[i].y - pts[j].y);
-                if (d < 130) {
-                    ctx.globalAlpha = (1 - d / 130) * 0.35;
-                    ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
-                }
-            }
-        }
-        ctx.strokeStyle = c2;                     // lines from the mouse to nearby dots
-        for (const p of pts) {
-            const d = Math.hypot(p.x - mouse.x, p.y - mouse.y);
-            if (d < 180) {
-                ctx.globalAlpha = (1 - d / 180) * 0.7;
-                ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
-            }
-        }
-        ctx.fillStyle = c1; ctx.globalAlpha = 0.8;
-        for (const p of pts) { ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); }
-        if (mouse.x > -999) {                     // soft glow under the cursor
+        ctx.globalAlpha = .3; ctx.strokeStyle = c1; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(bx - 6, by + 3); ctx.lineTo(bx + 8 * 22 * k, by + 3); ctx.stroke();
+        if (mobile) return;
+        // line chart
+        const lx = W * .27 + mxs * 6, ly = H * .13 + mys * 5;
+        ctx.globalAlpha = .18; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(lx, ly + 76); ctx.lineTo(lx + 190, ly + 76); ctx.stroke();
+        ctx.strokeStyle = c2; ctx.lineWidth = 2; ctx.globalAlpha = .5; ctx.beginPath();
+        const pts = Array.from({ length: 12 }, (_, i) => [lx + i * 17, ly + 38 - 26 * Math.sin(i * .8 + t * .0012) - 8 * Math.sin(i * 2 + t * .002)]);
+        pts.forEach(([px, py], i) => i ? ctx.lineTo(px, py) : ctx.moveTo(px, py)); ctx.stroke();
+        ctx.fillStyle = c2; pts.forEach(([px, py]) => { ctx.beginPath(); ctx.arc(px, py, 2.6, 0, 6.3); ctx.fill(); });
+        // scatter + trend line
+        const sx = W * .38 + mxs * 10, sy = H * .78 + mys * 7;
+        ctx.fillStyle = c1; ctx.globalAlpha = .5;
+        SCAT.forEach(([u, v], i) => { ctx.beginPath(); ctx.arc(sx + u * 170, sy + (v + Math.sin(t * .001 + i) * .03) * 80, 2.4, 0, 6.3); ctx.fill(); });
+        ctx.strokeStyle = c2; ctx.setLineDash([5, 5]); ctx.globalAlpha = .45; ctx.beginPath();
+        ctx.moveTo(sx, sy + .75 * 80); ctx.lineTo(sx + 170, sy + .25 * 80); ctx.stroke(); ctx.setLineDash([]);
+    }
+
+    function frame(t) {
+        ctx.clearRect(0, 0, W, H);
+        mxs += (tx - mxs) * .06; mys += (ty - mys) * .06;
+        TAGS.forEach((g) => {
+            ctx.font = '12px monospace'; ctx.globalAlpha = .2; ctx.fillStyle = c2;
+            ctx.fillText(g.t, g.x * W + Math.sin(t * .0003 + g.p) * g.d + mxs * 18, g.y * H + Math.cos(t * .00025 + g.p) * g.d + mys * 12);
+        });
+        data(t);
+        head(t, W < 820 ? .5 : .85);
+        if (mouse.x > -999) {                                    // soft glow under the cursor
             const g = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, 160);
             g.addColorStop(0, c2); g.addColorStop(1, 'transparent');
-            ctx.globalAlpha = 0.18; ctx.fillStyle = g;
-            ctx.fillRect(mouse.x - 160, mouse.y - 160, 320, 320);
+            ctx.globalAlpha = .12; ctx.fillStyle = g; ctx.fillRect(mouse.x - 160, mouse.y - 160, 320, 320);
         }
         ctx.globalAlpha = 1;
-        if (!reduce) requestAnimationFrame(draw);
+        if (!reduce) requestAnimationFrame(frame);
     }
 
-    colors(); resize(); draw();
-    window.addEventListener('resize', () => { resize(); if (reduce) draw(); });
-    window.addEventListener('pointermove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; }, { passive: true });
-    window.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') { mouse.x = mouse.y = -9999; } });
-    document.addEventListener('mouseleave', () => { mouse.x = mouse.y = -9999; });
-    new MutationObserver(() => { colors(); if (reduce) draw(); })
+    colors(); resize(); requestAnimationFrame(frame);
+    window.addEventListener('resize', () => { resize(); if (reduce) frame(0); });
+    window.addEventListener('pointermove', (e) => {
+        mouse.x = e.clientX; mouse.y = e.clientY;
+        tx = (e.clientX / W - .5) * 2; ty = (e.clientY / H - .5) * 2;
+    }, { passive: true });
+    window.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') { mouse.x = mouse.y = -9999; tx = ty = 0; } });
+    document.addEventListener('mouseleave', () => { mouse.x = mouse.y = -9999; tx = ty = 0; });
+    new MutationObserver(() => { colors(); if (reduce) frame(0); })
         .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 })();
 
@@ -223,7 +287,15 @@ if ('IntersectionObserver' in window && spyLinks.length) {
  "Visit GitHub ↗": "زيارة GitHub",
  "Contact me directly.": "تواصل معي مباشرة.",
  "Chat on WhatsApp ↗": "راسلني على واتساب",
- "© 2026 Ayman Zaki. All rights reserved. · AI & Machine Learning Engineer | Data Analyst": "© 2026 أيمن زكي. جميع الحقوق محفوظة. · مهندس ذكاء اصطناعي وتعلّم الآلة | محلل بيانات"
+ "© 2026 Ayman Zaki. All rights reserved. · AI & Machine Learning Engineer | Data Analyst": "© 2026 أيمن زكي. جميع الحقوق محفوظة. · مهندس ذكاء اصطناعي وتعلّم الآلة | محلل بيانات",
+ "Data Visualization & Reports": "تصوير البيانات والتقارير",
+ "Clear charts and visual reports that turn raw numbers into a story your team can act on.": "رسوم وتقارير مرئية واضحة تحوّل الأرقام الخام إلى قصة يمكن لفريقك البناء عليها.",
+ "ML Web Apps": "تطبيقات ويب للتعلّم الآلي",
+ "Interactive apps that let people try a model, explore data and see predictions, built with Streamlit.": "تطبيقات تفاعلية تتيح تجربة النموذج واستكشاف البيانات ورؤية التنبؤات، مبنية بـ Streamlit.",
+ "💬 Price: shared when you contact me": "💬 السعر: يُحدد عند التواصل",
+ "Get a quote →": "اطلب عرض سعر ←",
+ "Every project is different, so prices are shared when you get in touch.": "كل مشروع مختلف، لذلك تُحدد الأسعار عند التواصل معي.",
+ "Request a Quote": "اطلب عرض سعر"
 };
     const btn = document.getElementById('lang');
     if (!btn) return;
@@ -275,6 +347,12 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     const isAr = () => document.documentElement.lang === 'ar';
 
     const KB = [
+        { id: 'price', k: ['price', 'pricing', 'cost', 'quote', 'how much', 'charge', 'budget', 'سعر', 'اسعار', 'أسعار', 'بكام', 'تكلفة', 'تكاليف', 'ميزانية'],
+          en: 'Prices are shared when you get in touch, since every project is different. Send a short description of what you need on <a href="https://wa.me/201551637474" target="_blank" rel="noopener">WhatsApp</a> or by <a href="mailto:aymanzaki0155@gmail.com">email</a>, or use the <a href="#contact">contact section</a>.',
+          ar: 'الأسعار تُحدد عند التواصل لأن كل مشروع مختلف. أرسل وصفاً مختصراً لما تحتاجه على <a href="https://wa.me/201551637474" target="_blank" rel="noopener">واتساب</a> أو عبر <a href="mailto:aymanzaki0155@gmail.com">البريد</a>، أو من <a href="#contact">قسم التواصل</a>.' },
+        { id: 'services', k: ['service', 'offer', 'what can you do', 'what do you do', 'help me', 'خدمات', 'خدمة', 'تقدم', 'بتعمل', 'تعمل ايه', 'تعمل إيه'],
+          en: 'Ayman offers:<br>🤖 Machine Learning Solutions<br>📊 Data Analysis and cleaning<br>📈 Interactive Dashboards (Excel / Power BI)<br>🎨 Data Visualization and Reports<br>🌐 ML Web Apps (Streamlit)<br>Prices are shared when you get in touch. <a href="#services">See the services</a>',
+          ar: 'يقدّم أيمن:<br>🤖 حلول تعلّم الآلة<br>📊 تحليل البيانات وتنظيفها<br>📈 لوحات تفاعلية (Excel / Power BI)<br>🎨 تصوير البيانات والتقارير<br>🌐 تطبيقات ويب للتعلّم الآلي (Streamlit)<br>الأسعار تُحدد عند التواصل. <a href="#services">شاهد الخدمات</a>' },
         { id: 'cv', k: ['cv', 'resume', 'download', 'سيرة', 'سيره', 'تحميل', 'حمل'],
           en: 'Here you go: <a href="cv/Ayman_Zaki_CV.pdf" download>Download CV</a>',
           ar: 'تفضل: <a href="cv/Ayman_Zaki_CV.pdf" download>تحميل السيرة الذاتية</a>' },
@@ -300,12 +378,12 @@ if ('IntersectionObserver' in window && spyLinks.length) {
           en: 'Hello! 👋 What would you like to know about Ayman?', ar: 'أهلاً بك! 👋 ماذا تحب أن تعرف عن أيمن؟' }
     ];
     const FALLBACK = {
-        en: 'I am not sure about that, but you can ask about skills, projects, education or contact, or message Ayman on <a href="https://wa.me/201551637474" target="_blank" rel="noopener">WhatsApp</a>.',
-        ar: 'لست متأكداً من ذلك، لكن يمكنك السؤال عن المهارات أو المشاريع أو التعليم أو التواصل، أو مراسلة أيمن على <a href="https://wa.me/201551637474" target="_blank" rel="noopener">واتساب</a>.' };
+        en: 'I am not sure about that, but you can ask about skills, projects, services, pricing or contact, or message Ayman on <a href="https://wa.me/201551637474" target="_blank" rel="noopener">WhatsApp</a>.',
+        ar: 'لست متأكداً من ذلك، لكن يمكنك السؤال عن المهارات أو المشاريع أو الخدمات أو الأسعار أو التواصل، أو مراسلة أيمن على <a href="https://wa.me/201551637474" target="_blank" rel="noopener">واتساب</a>.' };
     const GREET = {
-        en: "Hi! I'm Ayman's assistant 👋 Ask me about his skills, projects, education, or how to contact him.",
-        ar: 'أهلاً! أنا مساعد أيمن 👋 اسألني عن مهاراته أو مشاريعه أو دراسته أو طريقة التواصل معه.' };
-    const QUICK = [['skills', 'Skills', 'المهارات'], ['projects', 'Projects', 'المشاريع'], ['edu', 'Education', 'التعليم'], ['contact', 'Contact', 'التواصل'], ['cv', 'Download CV', 'تحميل السيرة']];
+        en: "Hi! I'm Ayman's assistant 👋 Ask me about his skills, projects, services, pricing or how to contact him.",
+        ar: 'أهلاً! أنا مساعد أيمن 👋 اسألني عن مهاراته أو مشاريعه أو خدماته أو الأسعار أو طريقة التواصل معه.' };
+    const QUICK = [['skills', 'Skills', 'المهارات'], ['projects', 'Projects', 'المشاريع'], ['services', 'Services', 'الخدمات'], ['price', 'Pricing', 'الأسعار'], ['edu', 'Education', 'التعليم'], ['contact', 'Contact', 'التواصل'], ['cv', 'Download CV', 'تحميل السيرة']];
 
     function add(content, who, html) {
         const d = document.createElement('div');
