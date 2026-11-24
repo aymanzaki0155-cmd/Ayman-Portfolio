@@ -295,7 +295,8 @@ if ('IntersectionObserver' in window && spyLinks.length) {
  "💬 Price: shared when you contact me": "💬 السعر: يُحدد عند التواصل",
  "Get a quote →": "اطلب عرض سعر ←",
  "Every project is different, so prices are shared when you get in touch.": "كل مشروع مختلف، لذلك تُحدد الأسعار عند التواصل معي.",
- "Request a Quote": "اطلب عرض سعر"
+ "Request a Quote": "اطلب عرض سعر",
+ "Accuracy": "الدقة"
 };
     const btn = document.getElementById('lang');
     if (!btn) return;
@@ -363,8 +364,8 @@ if ('IntersectionObserver' in window && spyLinks.length) {
           en: '📧 <a href="mailto:aymanzaki0155@gmail.com">aymanzaki0155@gmail.com</a><br>💼 <a href="https://www.linkedin.com/in/aymanelmahmoudy/" target="_blank" rel="noopener">LinkedIn</a><br>💻 <a href="https://github.com/aymanzaki0155-cmd" target="_blank" rel="noopener">GitHub</a><br>📱 <a href="https://wa.me/201551637474" target="_blank" rel="noopener">WhatsApp</a>',
           ar: '📧 <a href="mailto:aymanzaki0155@gmail.com">aymanzaki0155@gmail.com</a><br>💼 <a href="https://www.linkedin.com/in/aymanelmahmoudy/" target="_blank" rel="noopener">LinkedIn</a><br>💻 <a href="https://github.com/aymanzaki0155-cmd" target="_blank" rel="noopener">GitHub</a><br>📱 <a href="https://wa.me/201551637474" target="_blank" rel="noopener">واتساب</a>' },
         { id: 'projects', k: ['project', 'work', 'portfolio', 'air', 'dashboard', 'churn', 'مشروع', 'مشاريع', 'اعمال', 'أعمال', 'جودة', 'داشبورد'],
-          en: '<b>Air Quality Prediction</b>: PM2.5 forecasting on 420K+ records (XGBoost R² 0.9547).<br><b>Excel Interactive Dashboard</b>: KPIs, Power Query and slicers.<br><b>Customer Churn Classification</b>: preprocessing, encoding, scaling and evaluation.<br><a href="#projects">See the projects</a>',
-          ar: '<b>التنبؤ بجودة الهواء</b>: توقع PM2.5 على أكثر من 420 ألف سجل (XGBoost R² 0.9547).<br><b>لوحة Excel تفاعلية</b>: مؤشرات أداء وPower Query وSlicers.<br><b>تصنيف تسرّب العملاء</b>: معالجة وترميز وتحجيم وتقييم.<br><a href="#projects">شاهد المشاريع</a>' },
+          en: '<b>Air Quality Prediction</b>: PM2.5 forecasting on 420K+ records (XGBoost R² 0.9547).<br><b>Excel Interactive Dashboard</b>: KPIs, Power Query and slicers.<br><b>Customer Churn Classification</b>: preprocessing, encoding, scaling and evaluation (accuracy 93%, F1 score 91.232%).<br><a href="#projects">See the projects</a>',
+          ar: '<b>التنبؤ بجودة الهواء</b>: توقع PM2.5 على أكثر من 420 ألف سجل (XGBoost R² 0.9547).<br><b>لوحة Excel تفاعلية</b>: مؤشرات أداء وPower Query وSlicers.<br><b>تصنيف تسرّب العملاء</b>: معالجة وترميز وتحجيم وتقييم (الدقة 93% وF1 = 91.232%).<br><a href="#projects">شاهد المشاريع</a>' },
         { id: 'skills', k: ['skill', 'tech', 'tools', 'python', 'sql', 'stack', 'مهارات', 'مهارة', 'تقنيات', 'ادوات', 'أدوات', 'بايثون'],
           en: '<b>Programming:</b> Python, C++, OOP<br><b>Data:</b> Pandas, NumPy, Excel, Power Query, SQL<br><b>Visualization:</b> Matplotlib, Seaborn, Power BI<br><b>ML:</b> Regression, Classification, Random Forest, XGBoost, SVM, PCA<br><b>Tools:</b> Scikit-learn, Jupyter, Colab, Git',
           ar: '<b>البرمجة:</b> Python, C++, OOP<br><b>البيانات:</b> Pandas, NumPy, Excel, Power Query, SQL<br><b>التصوير:</b> Matplotlib, Seaborn, Power BI<br><b>تعلّم الآلة:</b> Regression, Classification, Random Forest, XGBoost, SVM, PCA<br><b>الأدوات:</b> Scikit-learn, Jupyter, Colab, Git' },
