@@ -296,7 +296,39 @@ if ('IntersectionObserver' in window && spyLinks.length) {
  "Get a quote →": "اطلب عرض سعر ←",
  "Every project is different, so prices are shared when you get in touch.": "كل مشروع مختلف، لذلك تُحدد الأسعار عند التواصل معي.",
  "Request a Quote": "اطلب عرض سعر",
- "Accuracy": "الدقة"
+ "Accuracy": "الدقة",
+ "Home": "الرئيسية",
+ "Language": "لغة برمجة",
+ "Systems Language": "لغة نظم",
+ "Paradigm": "نمط برمجة",
+ "Database": "قاعدة بيانات",
+ "Data Science": "علم البيانات",
+ "Data Prep": "تجهيز البيانات",
+ "Analysis": "تحليل",
+ "BI Dashboards": "لوحات BI",
+ "Web Apps": "تطبيقات ويب",
+ "Version Control": "إدارة الإصدارات",
+ "Notebooks": "دفاتر تفاعلية",
+ "Data Cleaning & EDA": "تنظيف البيانات وEDA",
+ "Kind words": "كلمات طيبة",
+ "Testimonials": "آراء العملاء",
+ "Worked with me? Share your experience, and it may appear here.": "تعاملت معي؟ شاركنا تجربتك وقد تظهر هنا.",
+ "No testimonials yet. Be the first to share your experience!": "لا توجد آراء بعد. كن أول من يشارك تجربته!",
+ "Leave a Testimonial": "اترك رأيك",
+ "Your name": "اسمك",
+ "Role / Company (optional)": "الوظيفة / الشركة (اختياري)",
+ "Rating": "التقييم",
+ "Your testimonial": "رأيك",
+ "Send by Email": "إرسال بالبريد",
+ "Send via WhatsApp": "إرسال عبر واتساب",
+ "Hire me": "اعمل معي",
+ "Find Me on Freelance Platforms": "ستجدني على منصات العمل الحر",
+ "Prefer to work through a platform? Visit my profile and place an order.": "تفضل العمل عبر منصة؟ زر ملفي الشخصي وأنشئ طلبك.",
+ "Mostaql": "مستقل",
+ "Khamsat": "خمسات",
+ "Nafezly": "نفذلي",
+ "Kafiil": "كفيل",
+ "View profile ↗": "افتح ملفي الشخصي"
 };
     const btn = document.getElementById('lang');
     if (!btn) return;
@@ -328,6 +360,7 @@ if ('IntersectionObserver' in window && spyLinks.length) {
         root.dir = lang === 'ar' ? 'rtl' : 'ltr';
         document.title = titles[lang];
         btn.textContent = lang === 'ar' ? 'EN' : 'عربي';
+        document.querySelectorAll('[data-ph-ar]').forEach((el) => { el.placeholder = lang === 'ar' ? el.dataset.phAr : el.dataset.phEn; });
         try { localStorage.setItem('lang', lang); } catch (e) {}
     }
 
@@ -346,6 +379,8 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     const form = document.getElementById('chat-form'), input = document.getElementById('chat-input');
     const closeBtn = document.getElementById('chat-close'), cv = document.getElementById('chat-bg');
     const isAr = () => document.documentElement.lang === 'ar';
+    const val = (e) => { const v = isAr() ? e.ar : e.en; return typeof v === 'function' ? v() : v; };
+    const platHtml = () => (isAr() ? 'يمكنك العثور على أيمن على منصات العمل الحر التالية:<br>' : 'You can find Ayman on these freelance platforms:<br>') + Array.from(document.querySelectorAll('.pcard')).map((a) => '🔗 <a href="' + a.href + '" target="_blank" rel="noopener">' + (isAr() ? a.dataset.ar : a.dataset.en) + '</a>').join('<br>');
 
     const KB = [
         { id: 'price', k: ['price', 'pricing', 'cost', 'quote', 'how much', 'charge', 'budget', 'سعر', 'اسعار', 'أسعار', 'بكام', 'تكلفة', 'تكاليف', 'ميزانية'],
@@ -354,6 +389,11 @@ if ('IntersectionObserver' in window && spyLinks.length) {
         { id: 'services', k: ['service', 'offer', 'what can you do', 'what do you do', 'help me', 'خدمات', 'خدمة', 'تقدم', 'بتعمل', 'تعمل ايه', 'تعمل إيه'],
           en: 'Ayman offers:<br>🤖 Machine Learning Solutions<br>📊 Data Analysis and cleaning<br>📈 Interactive Dashboards (Excel / Power BI)<br>🎨 Data Visualization and Reports<br>🌐 ML Web Apps (Streamlit)<br>Prices are shared when you get in touch. <a href="#services">See the services</a>',
           ar: 'يقدّم أيمن:<br>🤖 حلول تعلّم الآلة<br>📊 تحليل البيانات وتنظيفها<br>📈 لوحات تفاعلية (Excel / Power BI)<br>🎨 تصوير البيانات والتقارير<br>🌐 تطبيقات ويب للتعلّم الآلي (Streamlit)<br>الأسعار تُحدد عند التواصل. <a href="#services">شاهد الخدمات</a>' },
+        { id: 'platforms', k: ['mostaql', 'khamsat', 'nafezly', 'kafiil', 'freelance', 'platform', 'مستقل', 'خمسات', 'نفذلي', 'كفيل', 'منصات', 'منصة', 'فريلانس'],
+          en: () => platHtml(), ar: () => platHtml() },
+        { id: 'testimonial', k: ['testimonial', 'review', 'feedback', 'رأي', 'رايك', 'تقييم', 'شهادة'],
+          en: 'Worked with Ayman? You can <a href="#testimonials">leave a testimonial</a> and share your experience.',
+          ar: 'تعاملت مع أيمن؟ يمكنك <a href="#testimonials">ترك رأيك</a> ومشاركة تجربتك.' },
         { id: 'cv', k: ['cv', 'resume', 'download', 'سيرة', 'سيره', 'تحميل', 'حمل'],
           en: 'Here you go: <a href="cv/Ayman_Zaki_CV.pdf" download>Download CV</a>',
           ar: 'تفضل: <a href="cv/Ayman_Zaki_CV.pdf" download>تحميل السيرة الذاتية</a>' },
@@ -384,7 +424,7 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     const GREET = {
         en: "Hi! I'm Ayman's assistant 👋 Ask me about his skills, projects, services, pricing or how to contact him.",
         ar: 'أهلاً! أنا مساعد أيمن 👋 اسألني عن مهاراته أو مشاريعه أو خدماته أو الأسعار أو طريقة التواصل معه.' };
-    const QUICK = [['skills', 'Skills', 'المهارات'], ['projects', 'Projects', 'المشاريع'], ['services', 'Services', 'الخدمات'], ['price', 'Pricing', 'الأسعار'], ['edu', 'Education', 'التعليم'], ['contact', 'Contact', 'التواصل'], ['cv', 'Download CV', 'تحميل السيرة']];
+    const QUICK = [['skills', 'Skills', 'المهارات'], ['projects', 'Projects', 'المشاريع'], ['services', 'Services', 'الخدمات'], ['price', 'Pricing', 'الأسعار'], ['platforms', 'Platforms', 'المنصات'], ['edu', 'Education', 'التعليم'], ['contact', 'Contact', 'التواصل'], ['cv', 'Download CV', 'تحميل السيرة']];
 
     function add(content, who, html) {
         const d = document.createElement('div');
@@ -402,7 +442,7 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     function answer(q) {
         const s = q.toLowerCase();
         const hit = KB.find((e) => e.k.some((w) => s.includes(w)));
-        botReply(hit ? (isAr() ? hit.ar : hit.en) : (isAr() ? FALLBACK.ar : FALLBACK.en));
+        botReply(hit ? val(hit) : (isAr() ? FALLBACK.ar : FALLBACK.en));
     }
     function renderUI() {
         document.getElementById('chat-title').textContent = isAr() ? 'مساعد أيمن' : "Ayman's Assistant";
@@ -416,7 +456,7 @@ if ('IntersectionObserver' in window && spyLinks.length) {
             b.addEventListener('click', () => {
                 add(b.textContent, 'user');
                 const e = KB.find((x) => x.id === id);
-                botReply(isAr() ? e.ar : e.en);
+                botReply(val(e));
             });
             quick.appendChild(b);
         });
@@ -533,4 +573,63 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     // first pass: show the full title for a moment, then start the loop
     timer = 0; start();
     new MutationObserver(start).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+})();
+
+// Testimonials: wall (add approved ones below) + form that sends to Ayman by email / WhatsApp
+(function () {
+    const form = document.getElementById('t-form');
+    if (!form) return;
+    const T = (en, ar) => (document.documentElement.lang === 'ar' ? ar : en);
+    // Add approved testimonials here, e.g. { name: 'Sara Ahmed', role: 'Data Team Lead', rating: 5, text: '...' }
+    const TESTIMONIALS = [];
+    const wall = document.getElementById('t-wall'), status = document.getElementById('t-status');
+    const starsBox = document.getElementById('t-stars');
+    let rating = 0;
+
+    const stars = [1, 2, 3, 4, 5].map((n) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = '★'; b.setAttribute('role', 'radio');
+        b.setAttribute('aria-label', n + ' / 5'); b.setAttribute('aria-checked', 'false');
+        b.addEventListener('click', () => { rating = n; paint(); });
+        starsBox.appendChild(b); return b;
+    });
+    function paint() {
+        stars.forEach((b, i) => { b.classList.toggle('on', i < rating); b.setAttribute('aria-checked', String(i + 1 === rating)); });
+    }
+
+    if (TESTIMONIALS.length) {
+        wall.innerHTML = '';
+        TESTIMONIALS.forEach((t) => {
+            const c = document.createElement('div'); c.className = 'fcard tq';
+            const r = document.createElement('div'); r.className = 'rate'; r.textContent = '★'.repeat(t.rating || 5);
+            const q = document.createElement('p'); q.textContent = '“' + t.text + '”';
+            const n = document.createElement('b'); n.textContent = t.name;
+            const s = document.createElement('small'); s.textContent = t.role || '';
+            c.append(r, q, n, s); wall.appendChild(c);
+        });
+    }
+
+    function compose() {
+        const name = document.getElementById('t-name').value.trim();
+        const role = document.getElementById('t-role').value.trim();
+        const msg = document.getElementById('t-msg').value.trim();
+        return 'Testimonial for Ayman Zaki\n\nName: ' + name + (role ? '\nRole / Company: ' + role : '') +
+            '\nRating: ' + '★'.repeat(rating) + ' (' + rating + '/5)\n\n' + msg;
+    }
+    function valid() {
+        if (!form.reportValidity()) return false;
+        if (!rating) { status.textContent = T('Please choose a star rating first.', 'من فضلك اختر التقييم بالنجوم أولاً.'); return false; }
+        return true;
+    }
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!valid()) return;
+        window.location.href = 'mailto:aymanzaki0155@gmail.com?subject=' + encodeURIComponent('Testimonial for Ayman Zaki') + '&body=' + encodeURIComponent(compose());
+        status.textContent = T('Thank you! Your email app should open. If it does not, use WhatsApp.', 'شكراً لك! سيفتح تطبيق البريد. إن لم يفتح استخدم واتساب.');
+    });
+    document.getElementById('t-wa').addEventListener('click', () => {
+        if (!valid()) return;
+        window.open('https://wa.me/201551637474?text=' + encodeURIComponent(compose()), '_blank', 'noopener');
+        status.textContent = T('Thank you! WhatsApp should open with your message ready to send.', 'شكراً لك! سيفتح واتساب برسالتك جاهزة للإرسال.');
+    });
 })();
