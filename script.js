@@ -366,7 +366,10 @@ if ('IntersectionObserver' in window && spyLinks.length) {
  "Handled missing values, encoded categorical features, scaled numeric features and evaluated the models with classification metrics.": "عالجت القيم المفقودة، وشفّرت الخصائص الفئوية، وحجّمت الخصائص الرقمية، وقيّمت النماذج بمقاييس التصنيف.",
  "Reached 93% accuracy and a 91.232% F1 score.": "حقق دقة 93% وF1 = 91.232%.",
  "Churn Prediction": "التنبؤ بالتسرّب",
- "A short summary about me and the numbers behind my work.": "ملخص مختصر عني والأرقام وراء أعمالي."
+ "A short summary about me and the numbers behind my work.": "ملخص مختصر عني والأرقام وراء أعمالي.",
+ "Starting from": "يبدأ من",
+ "EGP": "جنيه",
+ "Prices shown are starting prices. The final quote depends on the scope of your project.": "الأسعار المعروضة هي أسعار البداية، والسعر النهائي يعتمد على نطاق مشروعك."
 };
     const btn = document.getElementById('lang');
     if (!btn) return;
@@ -420,13 +423,23 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     const val = (e) => { const v = isAr() ? e.ar : e.en; return typeof v === 'function' ? v() : v; };
     const platHtml = () => (isAr() ? 'يمكنك العثور على أيمن على منصات العمل الحر التالية:<br>' : 'You can find Ayman on these freelance platforms:<br>') + Array.from(document.querySelectorAll('.pcard')).map((a) => '🔗 <a href="' + a.href + '" target="_blank" rel="noopener">' + (isAr() ? a.dataset.ar : a.dataset.en) + '</a>').join('<br>');
 
+    const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    const svcCards = () => Array.from(document.querySelectorAll('.svc'));
+    const svcPrice = (c) => c.querySelector('.amt small').textContent + ' ' + c.querySelector('.amt b').textContent.replace(/\s+/g, ' ').trim();
+    const svcLines = () => svcCards().map((c) => '• ' + esc(c.querySelector('h3').textContent) + ': <b>' + esc(svcPrice(c)) + '</b>').join('<br>');
+    function svcAnswer(c) {
+        const tools = Array.from(c.querySelectorAll('.chips span')).map((x) => x.textContent).join(' · ');
+        return '<b>' + esc(c.querySelector('h3').textContent) + '</b><br>' + esc(c.querySelector('p').textContent) +
+            '<br>🛠 ' + (isAr() ? 'الأدوات' : 'Tools') + ': ' + esc(tools) +
+            '<br>💰 <b>' + esc(svcPrice(c)) + '</b><br><a href="#contact">' + esc(c.querySelector('.price a').textContent) + '</a>';
+    }
     const KB = [
         { id: 'price', k: ['price', 'pricing', 'cost', 'quote', 'how much', 'charge', 'budget', 'سعر', 'اسعار', 'أسعار', 'بكام', 'تكلفة', 'تكاليف', 'ميزانية'],
-          en: 'Prices are shared when you get in touch, since every project is different. Send a short description of what you need on <a href="https://wa.me/201551637474" target="_blank" rel="noopener">WhatsApp</a> or by <a href="mailto:aymanzaki0155@gmail.com">email</a>, or use the <a href="#contact">contact section</a>.',
-          ar: 'الأسعار تُحدد عند التواصل لأن كل مشروع مختلف. أرسل وصفاً مختصراً لما تحتاجه على <a href="https://wa.me/201551637474" target="_blank" rel="noopener">واتساب</a> أو عبر <a href="mailto:aymanzaki0155@gmail.com">البريد</a>، أو من <a href="#contact">قسم التواصل</a>.' },
+          en: () => 'Starting prices:<br>' + svcLines() + '<br>The final quote depends on the scope of your project. <a href="#contact">Get a quote</a>',
+          ar: () => 'أسعار البداية:<br>' + svcLines() + '<br>السعر النهائي يعتمد على نطاق مشروعك. <a href="#contact">اطلب عرض سعر</a>' },
         { id: 'services', k: ['service', 'offer', 'what can you do', 'what do you do', 'help me', 'خدمات', 'خدمة', 'تقدم', 'بتعمل', 'تعمل ايه', 'تعمل إيه'],
-          en: 'Ayman offers:<br>🤖 Machine Learning Solutions<br>📊 Data Analysis and cleaning<br>📈 Interactive Dashboards (Excel / Power BI)<br>🎨 Data Visualization and Reports<br>🌐 ML Web Apps (Streamlit)<br>Prices are shared when you get in touch. <a href="#services">See the services</a>',
-          ar: 'يقدّم أيمن:<br>🤖 حلول تعلّم الآلة<br>📊 تحليل البيانات وتنظيفها<br>📈 لوحات تفاعلية (Excel / Power BI)<br>🎨 تصوير البيانات والتقارير<br>🌐 تطبيقات ويب للتعلّم الآلي (Streamlit)<br>الأسعار تُحدد عند التواصل. <a href="#services">شاهد الخدمات</a>' },
+          en: () => 'Ayman offers:<br>' + svcLines() + '<br>Ask me about any service for details. <a href="#services">See the services</a>',
+          ar: () => 'يقدّم أيمن:<br>' + svcLines() + '<br>اسألني عن أي خدمة لأعطيك تفاصيلها. <a href="#services">شاهد الخدمات</a>' },
         { id: 'platforms', k: ['mostaql', 'khamsat', 'nafezly', 'kafiil', 'freelance', 'platform', 'مستقل', 'خمسات', 'نفذلي', 'كفيل', 'منصات', 'منصة', 'فريلانس'],
           en: () => platHtml(), ar: () => platHtml() },
         { id: 'testimonial', k: ['testimonial', 'review', 'feedback', 'رأي', 'رايك', 'تقييم', 'شهادة'],
@@ -482,6 +495,10 @@ if ('IntersectionObserver' in window && spyLinks.length) {
     }
     function answer(q) {
         const s = q.toLowerCase();
+        if (!/project|مشروع|مشاريع/.test(s)) {
+            const card = svcCards().find((c) => c.dataset.keys.split(',').some((w) => s.includes(w.trim())));
+            if (card) { botReply(svcAnswer(card)); return; }
+        }
         const hit = KB.find((e) => e.k.some((w) => s.includes(w)));
         botReply(hit ? val(hit) : (isAr() ? FALLBACK.ar : FALLBACK.en));
     }

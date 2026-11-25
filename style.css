@@ -275,3 +275,10 @@ body{overflow-x:clip}
 html[dir=rtl] .case-tag,html[dir=rtl] .case-skills .lbl,html[dir=rtl] .case-vis .pill{letter-spacing:0;text-transform:none}
 .proofsum{margin-bottom:0}
 #projects .case:last-child{margin-bottom:0}
+/* ===== Services: icon on top + starting price ===== */
+.svc .sk-ic{margin-bottom:14px;width:56px;height:56px}
+.svc:hover .sk-ic{background:color-mix(in srgb,var(--pc) 22%,transparent);transform:scale(1.08)}
+.svc.picked .sk-ic{color:var(--c);background:color-mix(in srgb,var(--c) 18%,transparent);border-color:var(--c)}
+.price .amt small{display:block;font-size:.72rem;color:var(--muted)}
+.price .amt b{font-size:1.2rem;font-weight:800;color:var(--accent2);line-height:1.3}
+.svc.picked .amt b{color:var(--c)}
