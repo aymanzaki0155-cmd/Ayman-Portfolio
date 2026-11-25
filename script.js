@@ -365,7 +365,8 @@ if ('IntersectionObserver' in window && spyLinks.length) {
  "Data preprocessing, model development and evaluation.": "المعالجة المسبقة للبيانات وبناء النموذج وتقييمه.",
  "Handled missing values, encoded categorical features, scaled numeric features and evaluated the models with classification metrics.": "عالجت القيم المفقودة، وشفّرت الخصائص الفئوية، وحجّمت الخصائص الرقمية، وقيّمت النماذج بمقاييس التصنيف.",
  "Reached 93% accuracy and a 91.232% F1 score.": "حقق دقة 93% وF1 = 91.232%.",
- "Churn Prediction": "التنبؤ بالتسرّب"
+ "Churn Prediction": "التنبؤ بالتسرّب",
+ "A short summary about me and the numbers behind my work.": "ملخص مختصر عني والأرقام وراء أعمالي."
 };
     const btn = document.getElementById('lang');
     if (!btn) return;

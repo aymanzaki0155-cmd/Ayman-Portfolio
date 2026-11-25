@@ -273,3 +273,5 @@ body{overflow-x:clip}
 .vis-ic svg{width:34px;height:34px}
 .case-vis .pill{position:absolute;z-index:2;left:50%;bottom:22px;transform:translateX(-50%);font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:#22d3ee;border:1px solid #22d3ee;padding:7px 16px;border-radius:999px;background:rgba(5,8,16,.7);white-space:nowrap;box-shadow:0 0 18px rgba(34,211,238,.3)}
 html[dir=rtl] .case-tag,html[dir=rtl] .case-skills .lbl,html[dir=rtl] .case-vis .pill{letter-spacing:0;text-transform:none}
+.proofsum{margin-bottom:0}
+#projects .case:last-child{margin-bottom:0}
