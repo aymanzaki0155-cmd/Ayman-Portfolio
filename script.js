@@ -328,7 +328,9 @@ if ('IntersectionObserver' in window && spyLinks.length) {
  "Khamsat": "خمسات",
  "Nafezly": "نفذلي",
  "Kafiil": "كفيل",
- "View profile ↗": "افتح ملفي الشخصي"
+ "View profile ↗": "افتح ملفي الشخصي",
+ "Pipelines": "خطوط المعالجة",
+ "Dashboards": "لوحات البيانات"
 };
     const btn = document.getElementById('lang');
     if (!btn) return;
